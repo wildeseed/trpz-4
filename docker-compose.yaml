@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Твій бекенд (Radio Service)
+  radio-app:
+    container_name: radio-backend
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/radio-db
+      - SPRING_RABBITMQ_HOST=rabbitmq
+
+  # База даних MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: radio-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Брокер черг RabbitMQ (з адмін-панеллю)
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: radio-rabbit
+    ports:
+      - "5672:5672"   # Основний порт
+      - "15672:15672" # Адмін-панель (http://localhost:15672)
+
+volumes:
+  mongo_data:
